@@ -124,6 +124,7 @@ After an event ends, move its directory from `active/` to `archive/`.
 | Runtime provisioning | [docs/runtime-resources.md](runtime-resources.md) |
 | General themes / narratives | [docs/general-themes/](general-themes/) |
 | Module facilitator notes | [docs/module-facilitator-notes/](module-facilitator-notes/) |
+| Event facilitator notes | [docs/event-facilitator-notes/](event-facilitator-notes/) |
 | Event config template | [templates/event-readme.md](../templates/event-readme.md) |
 | Workshop provisioning scripts | [scripts/](../scripts/) |
 | API reference | [docs/api-reference-cheatsheet.md](api-reference-cheatsheet.md) |
