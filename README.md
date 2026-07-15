@@ -350,6 +350,8 @@ To prevent participant PII from leaking into PR descriptions across workshop rep
 
 This creates a PR in each repo adding a GitHub Actions workflow that fails if PR descriptions or review comments contain `Requested by:` PII patterns.
 
+The workflow also fails a PR if any **customer-identifying name** appears in the PR title, body, head branch name, changed file paths, or diff. The blocked terms are read from a `CUSTOMER_NAME_DENYLIST` Actions secret (newline- or comma-separated) so the names themselves never live in the repo — set it at the org level (recommended) or per-repo under **Settings → Secrets and variables → Actions**. If the secret is unset, this check is skipped. Never put a customer/organization name in any GitHub artifact (file contents, filenames, branch names, commit messages, or PR titles/bodies) — the real Devin org name stays on the Devin platform only.
+
 ### Phase 2: Workshop Day
 
 Participants log into the Devin Enterprise webapp for the workshop org and start sessions using prompts from the event README. The environment configs created in Phase 1 ensure their sessions start with working build environments.

@@ -2,11 +2,12 @@ name: PR PII Check
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, edited, reopened]
   pull_request_review_comment:
     types: [created, edited]
 
 permissions:
+  contents: read
   pull-requests: read
 
 jobs:
@@ -34,6 +35,66 @@ jobs:
             exit 1
           fi
           echo "No PII found in PR description."
+
+      - name: Checkout PR head
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Check for customer-identifying names
+        if: github.event_name == 'pull_request'
+        env:
+          # Newline- or comma-separated list of blocked customer-identifying
+          # terms. Stored as a secret so the names never live in this repo.
+          # Set it at the org level (recommended) or per-repo:
+          #   Settings -> Secrets and variables -> Actions -> New secret
+          #   Name: CUSTOMER_NAME_DENYLIST
+          CUSTOMER_NAME_DENYLIST: ${{ secrets.CUSTOMER_NAME_DENYLIST }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if [ -z "${CUSTOMER_NAME_DENYLIST//[[:space:]]/}" ]; then
+            echo "CUSTOMER_NAME_DENYLIST secret not set; skipping customer-name check."
+            echo "To enable, add an Actions secret named CUSTOMER_NAME_DENYLIST"
+            echo "(newline- or comma-separated) at the org or repo level."
+            exit 0
+          fi
+
+          # Build the corpus to scan: PR title, body, head branch name,
+          # changed file paths, and the diff content.
+          corpus="$(mktemp)"
+          {
+            printf '%s\n' "$PR_TITLE"
+            printf '%s\n' "$PR_BODY"
+            printf '%s\n' "$HEAD_REF"
+            git diff --name-only "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true
+            git diff "$BASE_SHA" "$HEAD_SHA" 2>/dev/null || true
+          } > "$corpus"
+
+          # Normalize the denylist (commas or newlines -> one term per line).
+          terms="$(mktemp)"
+          printf '%s' "$CUSTOMER_NAME_DENYLIST" | tr ',' '\n' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | grep -v '^$' > "$terms"
+
+          found=0
+          while IFS= read -r term; do
+            [ -z "$term" ] && continue
+            if grep -qFi "$term" "$corpus"; then
+              # Do NOT echo the matched term (it is the sensitive value).
+              echo "::error::A blocked customer-identifying term was found in this PR (title, body, branch name, changed file paths, or diff). Remove all customer/identifying names before merging."
+              found=1
+            fi
+          done < "$terms"
+
+          rm -f "$corpus" "$terms"
+          if [ "$found" -eq 1 ]; then
+            exit 1
+          fi
+          echo "No blocked customer-identifying names found."
 
       - name: Check comment for PII
         if: github.event_name == 'pull_request_review_comment'
