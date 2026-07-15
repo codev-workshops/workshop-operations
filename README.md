@@ -156,6 +156,8 @@ operator/
 
 #### 1.1 Mirror Repos to the Mirror GitHub Org
 
+> **Mirror org is optional.** The `-mirror` steps below only apply if you use a mirrored GitHub org. If the Devin GitHub App is installed directly on the source org (`Cognition-Partner-Workshops`), skip mirroring and use the source-org git connection and `Cognition-Partner-Workshops/<repo>` paths instead. See [AGENTS.md](AGENTS.md#mirror-org-is-optional).
+
 Repos from `Cognition-Partner-Workshops` must exist in `Cognition-Partner-Workshops-mirror`. You can mirror in bulk or one repo at a time.
 
 ##### Bulk mirror
