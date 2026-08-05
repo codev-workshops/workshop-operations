@@ -433,12 +433,22 @@ credentials as a feature, [Automations](https://docs.devin.ai/product-guides/aut
 Playbooks, and the programmatic verification loop). Facilitator-only logistics
 stay in this operator repo; attendee-facing narrative goes to `workshop-metadata`.
 
+To then **run** that demo's sessions in the org where it will be shown — owned by
+a named user rather than a service user — use the
+[`!run-demo-sessions`](.workshop/playbooks/run-demo-sessions-as-user.devin.md)
+playbook. It covers registering the playbook in the target org via the v3 API,
+creating one impersonated session per phase, verifying that impersonation and
+`!macro` resolution actually took effect, and monitoring the fan-out tree to a
+verified result. The Devin MCP management tools act on the *current* org only, so
+cross-org work must go through the API.
+
 ## Facilitator Documentation
 
 | Document | Description |
 |----------|-------------|
 | [Agent-Driven Event Setup](templates/agent-prompt-setup-event.md) | Prompt for a local AI coding agent to interactively provision a workshop (mirror repos, create org, set permissions) |
 | [Author a Devin Demo](.workshop/playbooks/author-devin-demo.devin.md) | Playbook (`!author-devin-demo`) for building a new verifiable Devin demo and its playbook/skill/presenter artifacts |
+| [Run Demo Sessions as a User](.workshop/playbooks/run-demo-sessions-as-user.devin.md) | Playbook (`!run-demo-sessions`) for registering a demo's playbook in a target org and kicking off its sessions, impersonating a real user |
 | [Facilitator Guide](docs/facilitator-guide.md) | Pre-event checklist, day-of logistics, pacing, common issues, format variations |
 | [Workshop Design Guide](docs/workshop-design-guide.md) | How to create modules, workshops, and events; audience recommendations; time budgets |
 | [Quality Checklist](docs/quality-checklist.md) | Quality standards for authoring or reviewing workshop content |

@@ -137,14 +137,48 @@ Only `prompt` is required. `create_as_user_id` requires the `ImpersonateOrgSessi
 ```
 GET /v3/organizations/{org_id}/sessions/{session_id}
 ```
-Returns: `{session_id, url, status, status_detail, acus_consumed, pull_requests, ...}`
+Returns: `{session_id, url, status, status_detail, user_id, playbook_id, acus_consumed, pull_requests, structured_output, parent_session_id, child_session_ids, origin, ...}`
 
 Status values: `new` → `claimed` → `running` → `suspended` / `exit` / `error`
+
+`suspended` with `status_detail: "inactivity"` means the session is waiting on a human, not that it failed.
+
+Use this to confirm impersonation worked: `user_id` should be the impersonated user, and `origin` reads `api`. Child sessions spawned by a session **inherit the parent's `user_id` and `playbook_id`**, so a fan-out tree stays under the impersonated user — follow `child_session_ids` to monitor them.
 
 ### List sessions
 ```
 GET /v3/organizations/{org_id}/sessions
 ```
+
+---
+
+## Playbooks
+
+### List playbooks
+```
+GET /v3/organizations/{org_id}/playbooks
+```
+Returns `{items: [{playbook_id, title, body, macro, access_type, created_by, ...}]}`. Search bodies as well as titles before registering a new one — orgs accumulate near-duplicates.
+
+### Create playbook
+```
+POST /v3/organizations/{org_id}/playbooks
+```
+Body:
+```json
+{
+  "title": "Playbook title",
+  "body": "# Playbook: ...\n\nMarkdown body",
+  "macro": "!my-macro"
+}
+```
+Include `macro` on creation. Playbook creation **ignores `create_as_user_id`** — `created_by` will be the service user.
+
+### Replace playbook
+```
+PUT /v3/organizations/{org_id}/playbooks/{playbook_id}
+```
+PUT **replaces** rather than merges, so send the complete object (title + body + macro). `PATCH` on a playbook returns **405**.
 
 ---
 
