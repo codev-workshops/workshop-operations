@@ -1,0 +1,16 @@
+{
+  "event_name": "CHANGEME — Event Name",
+  "org_name": "CHANGEME-Event-Name",
+  "git_connection_id": "git-connection-f76021b797ec4a80a62f8ae9dfc1c45c",
+  "max_session_acu_limit": 250,
+  "max_cycle_acu_limit": 250,
+  "repos": [
+    "Cognition-Partner-Workshops-mirror/REPO_NAME_1",
+    "Cognition-Partner-Workshops-mirror/REPO_NAME_2"
+  ],
+  "setup_as_user_id": "",
+  "setup_prompt_template": "Set up the {repo} repository from scratch: install dependencies, get the build and tests working. Then capture the working setup steps in the .yaml environment configuration.\n\nShould we get the app running: yes",
+  "emails_file": "",
+  "enterprise_role_id": "",
+  "org_role_id": ""
+}
